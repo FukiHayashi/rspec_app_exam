@@ -5,10 +5,7 @@ RSpec.describe 'Task', type: :system do
   let(:task) { create(:task, project_id: project.id) }
   describe 'Task一覧' do
     context '正常系' do
-      before do
-        project
-        task
-      end
+      before { task }
       it '一覧ページにアクセスした場合、Taskが表示されること' do
         # TODO: ローカル変数ではなく let を使用してください
         visit project_tasks_path(project)
@@ -58,24 +55,20 @@ RSpec.describe 'Task', type: :system do
     end
   end
 
-  describe 'Task編集', type: :doing do
+  describe 'Task編集' do
     context '正常系' do
-      xit 'Taskを編集した場合、一覧画面で編集後の内容が表示されること' do
+      it 'Taskを編集した場合、一覧画面で編集後の内容が表示されること' do
         # FIXME: テストが失敗するので修正してください
-        project = create(:project)
-        task = create(:task, project_id: project.id)
         visit edit_project_task_path(project, task)
         fill_in 'Deadline', with: Time.current
         click_button 'Update Task'
         click_link 'Back'
-        expect(find('.task_list')).to have_content(Time.current.strftime('%Y-%m-%d'))
+        expect(find('.task_list')).to have_content(Time.current.strftime('%-m/%d %H:%M'))
         expect(current_path).to eq project_tasks_path(project)
       end
 
       it 'ステータスを完了にした場合、Taskの完了日に今日の日付が登録されること' do
         # TODO: ローカル変数ではなく let を使用してください
-        project = create(:project)
-        task = create(:task, project_id: project.id)
         visit edit_project_task_path(project, task)
         select 'done', from: 'Status'
         click_button 'Update Task'
@@ -86,24 +79,22 @@ RSpec.describe 'Task', type: :system do
 
       it '既にステータスが完了のタスクのステータスを変更した場合、Taskの完了日が更新されないこと' do
         # TODO: FactoryBotのtraitを利用してください
-        project = create(:project)
-        task = create(:task, project_id: project.id, status: :done, completion_date: Time.current.yesterday)
-        visit edit_project_task_path(project, task)
+        done_task = create(:task, :done, project_id: project.id)
+        visit edit_project_task_path(project, done_task)
         select 'todo', from: 'Status'
         click_button 'Update Task'
         expect(page).to have_content('todo')
         expect(page).not_to have_content(Time.current.strftime('%Y-%m-%d'))
-        expect(current_path).to eq project_task_path(project, task)
+        expect(current_path).to eq project_task_path(project, done_task)
       end
     end
   end
 
   describe 'Task削除' do
+    before { task }
     context '正常系' do
       # FIXME: テストが失敗するので修正してください
-      xit 'Taskが削除されること' do
-        project = create(:project)
-        task = create(:task, project_id: project.id)
+      it 'Taskが削除されること' do
         visit project_tasks_path(project)
         click_link 'Destroy'
         page.driver.browser.switch_to.alert.accept
