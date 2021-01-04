@@ -5,7 +5,6 @@ RSpec.describe 'Task', type: :system do
   let(:task) { create(:task, project_id: project.id) }
   describe 'Task一覧' do
     context '正常系' do
-      before { task }
       it '一覧ページにアクセスした場合、Taskが表示されること' do
         # TODO: ローカル変数ではなく let を使用してください
         visit project_tasks_path(project)
@@ -92,7 +91,7 @@ RSpec.describe 'Task', type: :system do
   end
 
   describe 'Task削除' do
-    before { task }
+    let!(:task) { create(:task, project_id: project.id) }
     context '正常系' do
       # FIXME: テストが失敗するので修正してください
       it 'Taskが削除されること' do
